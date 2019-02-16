@@ -1,6 +1,6 @@
 <!DOCTYPE html>
   <html lang="en">
-
+    <!--Justin Baja, 000356032-->
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,7 @@
   <body>
     <div class="container">
       <h1>Student Registry</h1>
-      <form class="form-horizontal">
+      <form class="form-horizontal" id="form">
         <div class="form-group has-feedback" id="name">
           <label for="studentName" class="col-sm-2 control-label">Student Name:</label>
           <div class="col-sm-6">
@@ -26,24 +26,32 @@
         <div class="form-group has-feedback" id="id">
           <label for="studentID" class="col-sm-2 control-label">Student ID:</label>
           <div class="col-sm-6">
-            <input type="test" class="form-control" id="studentID">
+            <input type="text" class="form-control" id="studentID">
+            <span class="glyphicon form-control-feedback" id="idGlyphicon" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <h5 id="idMessage"></h5>
           </div>
         </div>
         <div class="form-group has-feedback" id="programID">
           <label for="program" class="col-sm-2 control-label">Program:</label>
           <div class="col-sm-6">
-            <input type="test" class="form-control" id="program">
+            <input type="text" class="form-control" id="program">
+            <span class="glyphicon form-control-feedback" id="programGlyphicon" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <h5 id="programMessage"></h5>
           </div>
         </div>
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary">
+            <input type="submit" class="btn btn-primary" id="submitButton">
           </div>
         </div>
       </form>
       <p id="test"></p>
       <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="studentTable">
           <tr>
             <th>Student Name</th>
             <th>Student ID</th>
@@ -57,8 +65,33 @@
       <!-- Include all compiled plugins (below), or include individual files as needed -->
       <script src="js/bootstrap.min.js"></script>
       <script>
+        // If the name the user entered is valid
+        var validName = false;
+        // If the student number the user entered is valid
+        var validStudentNumber = false;
+        // If the program the user entered is valid
+        var validProgram = false;
         $(document).ready(function () 
         {
+          $( "#form" ).submit(function( event ) {
+            // If all inputs are valid, submit the data to the table
+            if(validName && validStudentNumber && validProgram)
+            {
+              // Student Name
+              var sName = $("#studentName").val();
+              // Student Number
+              var sNumber = $("#studentID").val();
+              // Program
+              var sProgram = $("#program").val();
+              // Appending a new row of information to the table
+              var row = "<tr><td>" + sName + "</td><td>" + sNumber + "<td>"              + sProgram + "</td></tr>";
+              $("#studentTable").append(row);
+              event.preventDefault();
+            }
+            else
+              event.preventDefault();
+          });
+          // Student Name Ajax Call
           $("#studentName").keyup(function () 
           {
             $.get(
@@ -66,26 +99,117 @@
               { "studentName": $("#studentName").val() },
               function (data) 
               {
-                if (data == 1) {
+                // Student name Ajax call
+                if (data == 1) 
+                {
                   $("#name").removeClass("has-success has-error").addClass("has-warning");
                   $("#nameGlyphicon").removeClass("glyphicon-remove glyphicon-ok").addClass("glyphicon-warning-sign");
                   $("#nameMessage").html("Student name may be fictitious").removeClass("text-success text-danger").addClass("text-warning");
+                  validName = false;
                 }
-                else if (data == 2) {
+                else if (data == 2) 
+                {
                   $("#name").removeClass("has-success has-warning").addClass("has-error");
                   $("#nameGlyphicon").removeClass("glyphicon-ok glyphicon-warning-sign").addClass("glyphicon-remove");
-                  $("#nameMessage").html("Student name cannot contain digits or be left blank.").removeClass("text-success text-warning").addClass("text-danger");
+                  $("#nameMessage").html("Student name cannot contain digits.").removeClass("text-success text-warning").addClass("text-danger");
+                  validName = false;
                 }
-                else if (data == 3) {
+                else if (data == 3) 
+                {
                   $("#name").removeClass("has-warning has-error").addClass("has-success");
                   $("#nameGlyphicon").removeClass("glyphicon-warning-sign glyphicon-remove").addClass("glyphicon-ok");
-                  $("#nameMessage").html("Valid Name").removeClass("text-warning text-danger").addClass("text-success");
+                  $("#nameMessage").html("").removeClass("text-warning text-danger").addClass("text-success");
+                  validName = true;
+                }
+                else if (data == 4)
+                {
+                  $("#name").removeClass("has-warning has-error has-success");
+                  $("#nameGlyphicon").removeClass("glyphicon-warning-sign glyphicon-remove glyphicon-ok");
+                  $("#nameMessage").html("").removeClass("text-warning text-danger text-success");
+                  validName = false;
+                }
+              }
+            )
+          });
+          // Student Number Ajax call
+          $("#studentID").keyup(function () 
+          {
+            $.get(
+              "studentNumberCheck.php",
+              { "studentNumber": $("#studentID").val() },
+              function (data) 
+              {
+                if(data == 1)
+                {
+                  $("#id").removeClass("has-success has-error").addClass("has-warning");
+                  $("#idGlyphicon").removeClass("glyphicon-remove glyphicon-ok").addClass("glyphicon-warning-sign");
+                  $("#idMessage").html("Student ID is suspicious.").removeClass("text-success text-danger").addClass("text-warning");
+                  validStudentNumber = false;
+                }
+                else if (data == 2) 
+                {
+                  $("#id").removeClass("has-success has-warning").addClass("has-error");
+                  $("#idGlyphicon").removeClass("glyphicon-ok glyphicon-warning-sign").addClass("glyphicon-remove");
+                  $("#idMessage").html("Student ID must only contain digits.").removeClass("text-success text-warning").addClass("text-danger");
+                  validStudentNumber = false;
+                }
+                else if (data == 3) 
+                {
+                  $("#id").removeClass("has-warning has-error").addClass("has-success");
+                  $("#idGlyphicon").removeClass("glyphicon-warning-sign glyphicon-remove").addClass("glyphicon-ok");
+                  $("#idMessage").html("").removeClass("text-warning text-danger").addClass("text-success");
+                  validStudentNumber = true;
+                }
+                else if (data == 4)
+                {
+                  $("#id").removeClass("has-warning has-error has-success");
+                  $("#idGlyphicon").removeClass("glyphicon-warning-sign glyphicon-remove glyphicon-ok");
+                  $("#idMessage").html("").removeClass("text-warning text-danger text-success");
+                  validStudentNumber = false;
+                }
+              }
+            )
+          });
+          // Program Ajax Call
+          $("#program").keyup(function () 
+          {
+            $.get(
+              "programCheck.php",
+              { "programName": $("#program").val() },
+              function (data) 
+              {
+                if(data == 1)
+                {
+                  $("#programID").removeClass("has-success has-error").addClass("has-warning");
+                  $("#programGlyphicon").removeClass("glyphicon-remove glyphicon-ok").addClass("glyphicon-warning-sign");
+                  $("#programMessage").html("Program may be fictitious.").removeClass("text-success text-danger").addClass("text-warning");
+                  validProgram = false;
+                }
+                else if (data == 2) 
+                {
+                  $("#programID").removeClass("has-success has-warning").addClass("has-error");
+                  $("#programGlyphicon").removeClass("glyphicon-ok glyphicon-warning-sign").addClass("glyphicon-remove");
+                  $("#programMessage").html("Program does not exist.").removeClass("text-success text-warning").addClass("text-danger");
+                  validProgram = false;
+                }
+                else if (data == 3) 
+                {
+                  $("#programID").removeClass("has-warning has-error").addClass("has-success");
+                  $("#programGlyphicon").removeClass("glyphicon-warning-sign glyphicon-remove").addClass("glyphicon-ok");
+                  $("#programMessage").html("").removeClass("text-warning text-danger").addClass("text-success");
+                  validProgram = true;
+                }
+                else if (data == 4)
+                {
+                  $("#programID").removeClass("has-warning has-error has-success");
+                  $("#programGlyphicon").removeClass("glyphicon-warning-sign glyphicon-remove glyphicon-ok");
+                  $("#programMessage").html("").removeClass("text-warning text-danger text-success");
+                  validProgram = false;
                 }
               }
             )
           });
         });
-      </script>
+    </script>
   </body>
-
 </html>
