@@ -87,6 +87,17 @@
               var row = "<tr><td>" + sName + "</td><td>" + sNumber + "<td>"              + sProgram + "</td></tr>";
               $("#studentTable").append(row);
               event.preventDefault();
+              // Removes all the classes and Glyphicon's from student name
+              $("#name").removeClass("has-success text-success");
+              $("#nameGlyphicon").removeClass("glyphicon-ok");
+              // Removes all the classes and Glyphicon's from student number
+              $("#id").removeClass("has-success text-success");
+              $("#idGlyphicon").removeClass("glyphicon-ok");
+              // Removes all the classes and Glyphicon's from program
+              $("#programID").removeClass("has-success text-success");
+              $("#programGlyphicon").removeClass("glyphicon-ok");
+              // Resets the form
+              $('#form').find('input:text').val('');
             }
             else
               event.preventDefault();
